@@ -1,0 +1,120 @@
+<%- include('partials/header') -%>
+<div class="container text-center">
+  <div class="col-12 mb-3 d-flex justify-content-center">
+    <div
+      class="card border-0 shadow-sm"
+      style="max-width: 600px; width: 100%; border-radius: 15px"
+    >
+      <div class="card-body text-start">
+        <div class="text-decoration-none text-reset align-middle">
+          <img
+            src="https://img.icons8.com/?size=100&id=vrjuWgj4Ipxl&format=png&color=000000"
+            width="30"
+            height="30"
+            alt="<%= user[post.user] %>"
+          />
+          <span class="card-title fw-bold font-monospace text-capitalize mx-1"
+            ><%= user[post.user] %></span
+          >
+        </div>
+        <p class="card-title h5 px-3 py-2 rounded-4 mt-3"><%= post.title %></p>
+        <img
+          class="card-img-top rounded"
+          src="<%= post.image %>"
+          alt="<%= post.title %>"
+        />
+        <p
+          class="card-text bg-secondary-subtle px-4 py-3 rounded-5 mt-3 text-start fs-6 fw-medium lh-sm text-dark-emphasis"
+        >
+          <%= post.caption %>
+        </p>
+      </div>
+
+      <div class="card-body text-start pt-0 d-flex align-items-center">
+        <div class="d-flex align-items-center me-4">
+          <button
+            form="like-<%= post._id %>"
+            class="btn btn-primary fa fa-heart"
+            type="submit"
+          ></button>
+          <span class="ms-2 fs-5"><%= post.likes %></span>
+        </div>
+        <button
+          class="btn btn-primary fa-regular fa-comment me-4"
+          data-bs-toggle="collapse"
+          data-bs-target="#collapseComments-<%= post._id %>"
+          aria-expanded="false"
+          aria-controls="collapseComments-<%= post._id %>"
+        ></button>
+        <%if(post.user == currentUser){ %>
+        <form
+          action="/post/deletePost/<%= post.id %>?_method=DELETE"
+          method="POST"
+          class="col-3"
+        >
+          <button class="btn btn-danger fa fa-trash" type="submit"></button>
+        </form>
+        <%}%>
+      </div>
+
+      <!-- Comments -->
+      <div class="mx-3">
+        <div
+          class="collapse border-top"
+          id="collapseComments-<%= post._id %>"
+          style="
+            transition: height 0.3s ease, padding 0.3s ease;
+            overflow: hidden;
+          "
+        >
+          <% comments.forEach((comment) => { %>
+          <div class="d-flex align-items-center gap-3 my-3">
+            <img
+              src="https://img.icons8.com/?size=100&id=vrjuWgj4Ipxl&format=png&color=000000"
+              width="40"
+              height="40"
+              class="rounded-circle"
+              alt="<%= user[comment.user] %>"
+            />
+            <div class="text-start">
+              <div class="fw-semibold small text-capitalize mb-1">
+                <%= user[comment.user] %>
+              </div>
+              <div class="text-muted"><%= comment.text %></div>
+            </div>
+          </div>
+          <% }) %>
+
+          <form
+            action="/post/addComment/<%= post._id %>"
+            method="post"
+            class="mb-3"
+          >
+            <div class="input-group mt-3">
+              <input
+                type="text"
+                name="commentText"
+                class="form-control"
+                placeholder="Add comment on <%= user[post.user] %>'s post"
+                aria-labpost="Comment"
+                required
+              />
+              <button class="btn btn-primary" type="submit">Add</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Like Form (Separated) -->
+  <form
+    id="like-<%= post._id %>"
+    class="col-1"
+    style="display: contents"
+    action="/post/likePost/<%= post._id %>?_method=PUT"
+    method="POST"
+  ></form>
+</div>
+
+<%- include('partials/footer') -%>

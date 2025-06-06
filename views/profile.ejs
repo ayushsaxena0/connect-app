@@ -1,0 +1,217 @@
+<%- include('partials/header') -%>
+
+<div class="container">
+  <div class="row mt-5">
+    <!-- Left Column (User Info + Modal) -->
+    <div class="col-12 col-md-6 mb-3">
+      <div class="text-center text-md-start">
+        <p><strong>User Name</strong>: <%= currentUser.userName %></p>
+        <p><strong>Email</strong>: <%= currentUser.email %></p>
+        <a href="/logout" class="btn btn-primary me-2">Logout</a>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#staticBackdrop"
+        >
+          <span>Add Post</span>
+        </button>
+      </div>
+
+      <!-- Modal -->
+      <div
+        class="modal fade"
+        id="staticBackdrop"
+        data-bs-backdrop="static"
+        data-bs-keyboard="false"
+        tabindex="-1"
+        aria-labelledby="staticBackdropLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                Add Post
+              </h1>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form
+                action="/post/createPost"
+                enctype="multipart/form-data"
+                method="POST"
+                id="form"
+              >
+                <div class="mb-3">
+                  <label for="title" class="form-label">Title</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="title"
+                    name="title"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label for="caption" class="form-label">Caption</label>
+                  <textarea
+                    class="form-control"
+                    id="caption"
+                    name="caption"
+                  ></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="imgUpload" class="form-label">Image</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="imageUpload"
+                    name="file"
+                  />
+                </div>
+              </form>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+              <button
+                type="submit"
+                class="btn btn-primary"
+                form="form"
+                value="Upload"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column (Posts) -->
+    <div class="col-12 col-md-6">
+      <h2 class="text-center mb-2">Your Posts</h2>
+      <div class="row justify-content-center mb-3">
+        <% posts.forEach((el) => { %>
+        <div class="col-12 mb-3 d-flex justify-content-center">
+          <div
+            class="card border-0 shadow-sm"
+            style="max-width: 600px; width: 100%; border-radius: 15px"
+          >
+            <div class="card-body text-start">
+              <p class="card-title h5 px-3 py-2 rounded-4 mt-3">
+                <%= el.title %>
+              </p>
+              <img
+                class="card-img-top rounded"
+                src="<%= el.image %>"
+                alt="<%= el.title %> Image"
+              />
+              <p
+                class="card-text bg-secondary-subtle px-4 py-3 rounded-5 mt-3 text-start fs-6 fw-medium lh-sm text-dark-emphasis"
+              >
+                <%= el.caption %>
+              </p>
+            </div>
+
+            <div class="card-body text-start pt-0 d-flex align-items-center">
+              <div class="d-flex align-items-center me-4">
+                <button
+                  form="like-<%= el._id %>"
+                  class="btn btn-primary fa fa-heart"
+                  type="submit"
+                ></button>
+                <span class="ms-2 fs-5"><%= el.likes %></span>
+              </div>
+              <button
+                class="btn btn-primary fa-regular fa-comment"
+                data-bs-toggle="collapse"
+                data-bs-target="#collapseComments-<%= el._id %>"
+                aria-expanded="false"
+                aria-controls="collapseComments-<%= el._id %>"
+              ></button>
+              <form
+                action="/post/deletePost/<%= el._id %>?_method=DELETE"
+                method="POST"
+                class="col-3 ms-4"
+              >
+                <button
+                  class="btn btn-danger fa fa-trash"
+                  type="submit"
+                ></button>
+              </form>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="mx-3">
+              <div
+                class="collapse border-top"
+                id="collapseComments-<%= el._id %>"
+              >
+                <% comments.forEach((comment) => { if (comment.post.toString()
+                === el._id.toString()) { %>
+                <div class="d-flex align-items-center gap-3 my-3">
+                  <img
+                    src="https://img.icons8.com/?size=100&id=vrjuWgj4Ipxl&format=png&color=000000"
+                    width="40"
+                    height="40"
+                    class="rounded-circle"
+                    alt="<%= user[comment.user] %>"
+                  />
+                  <div class="text-start">
+                    <div class="fw-semibold small text-capitalize mb-1">
+                      <%= user[comment.user] %>
+                    </div>
+                    <div class="text-muted"><%= comment.text %></div>
+                  </div>
+                </div>
+                <% } }) %>
+
+                <!-- Add Comment Form -->
+                <form
+                  action="/post/addComment/<%= el._id %>"
+                  method="post"
+                  class="mb-3"
+                >
+                  <div class="input-group mt-3">
+                    <input
+                      type="text"
+                      name="commentText"
+                      class="form-control"
+                      placeholder="Add comment on <%= user[el.user] %>'s post"
+                      aria-label="Comment"
+                      required
+                    />
+                    <button class="btn btn-primary" type="submit">Add</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden Like Form -->
+        <form
+          id="like-<%= el._id %>"
+          style="display: contents"
+          action="/post/likePost/<%= el._id %>?_method=PUT"
+          method="POST"
+        ></form>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') -%>
